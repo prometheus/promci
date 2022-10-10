@@ -1,4 +1,5 @@
 name: PromCI
+description: An action used by the Prometheus project to share github actions.
 runs:
   using: composite
   steps:
