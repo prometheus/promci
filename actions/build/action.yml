@@ -9,6 +9,10 @@ inputs:
     type: integer
     description: Number of builds to do in parallel
     default: 3
+  promu_config:
+    type: string
+    description: Config file for promu
+    default: .promu.yml
   promu_opts:
     type: string
     description: Options to pass to promu
@@ -16,7 +20,7 @@ runs:
   using: composite
   steps:
     - uses: ./.github/promci/actions/setup_environment
-    - run: ~/go/bin/promu crossbuild -v --parallelism ${{ inputs.parallelism }} --parallelism-thread ${{ inputs.thread }} ${{ inputs.promu_opts }}
+    - run: ~/go/bin/promu -c ${{ inputs.promu_config }} crossbuild -v --parallelism ${{ inputs.parallelism }} --parallelism-thread ${{ inputs.thread }} ${{ inputs.promu_opts }}
       shell: bash
     - uses: ./.github/promci/actions/save_artifacts
       with:
