@@ -23,6 +23,10 @@ inputs:
   github_token:
     type: string
     description: Github Token
+  promu_config:
+    type: string
+    description: Config file for promu
+    default: .promu.yml
 runs:
   using: composite
   steps:
@@ -30,11 +34,11 @@ runs:
       with:
         enable_docker_multibuild: true
     - uses: ./.github/promci/actions/restore_artifacts
-    - run: ~/go/bin/promu crossbuild tarballs
+    - run: ~/go/bin/promu -c ${{ inputs.promu_config}} crossbuild tarballs
       shell: bash
-    - run: ~/go/bin/promu checksum .tarballs
+    - run: ~/go/bin/promu -c ${{ inputs.promu_config}} checksum .tarballs
       shell: bash
-    - run: ~/go/bin/promu release .tarballs
+    - run: ~/go/bin/promu -c ${{ inputs.promu_config}} release .tarballs
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}

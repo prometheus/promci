@@ -24,6 +24,9 @@ inputs:
     description: Name of the container image
     type: string
     default: ""
+  docker_image_tag:
+    description: A custom image tag to be added
+    type: string
 runs:
   using: composite
   steps:
@@ -35,6 +38,9 @@ runs:
       shell: bash
     - if: inputs.dockerbuild_context != ''
       run: echo "export DOCKERBUILD_CONTEXT=${{ inputs.dockerbuild_context }}" >> /tmp/tmp-profile
+      shell: bash
+    - if: inputs.docker_image_tag != ''
+      run: echo "export DOCKER_IMAGE_TAG=${{ inputs.docker_image_tag }}" >> /tmp/tmp-profile
       shell: bash
     - run: |
         touch /tmp/tmp-profile
