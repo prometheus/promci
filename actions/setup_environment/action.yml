@@ -12,6 +12,10 @@ inputs:
     type: boolean
     description: Whether to enable multibuild docker
     default: false
+  memlimit_ratio:
+    type: string
+    description: The ratio of memory reserved for Go
+    default: "0.8"
 runs:
   using: composite
   steps:
@@ -32,6 +36,18 @@ runs:
         key: ${{ runner.os }}-npm-${{ hashFiles('web/ui/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-npm-
+    - name: Set GOMEMLIMIT
+      run: |
+        ratio="${{ inputs.memlimit_ratio }}"
+        # Get the memory limit from cgroups v2.
+        cgroup=$(awk -F':' '{print $3}' /proc/self/cgroup)
+        cgroup_mem_limit=$(< "/sys/fs/cgroup/${cgroup}/memory.max")
+        if [[ "${cgroup_mem_limit}" != "max" ]] ; then
+          echo "${cgroup_mem_limit}" | awk -v "ratio=${ratio}" '{printf "GOMEMLIMIT=%.0fKiB\n", $1 / 1024 * ratio}' >> "$GITHUB_ENV"
+          exit 0
+        fi
+        # Fallback to the system memory limit.
+        awk -v "ratio=${ratio}" '$1 == "MemTotal:" {printf "GOMEMLIMIT=%.0fKiB\n", $2 * ratio}' /proc/meminfo >> "$GITHUB_ENV"
     - run: make promu
       shell: bash
       if: inputs.enable_go == 'true'
