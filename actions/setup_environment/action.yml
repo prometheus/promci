@@ -37,17 +37,20 @@ runs:
         restore-keys: |
           ${{ runner.os }}-npm-
     - name: Set GOMEMLIMIT
+      shell: bash
       run: |
-        ratio="${{ inputs.memlimit_ratio }}"
-        # Get the memory limit from cgroups v2.
+        ratio=${{ inputs.memlimit_ratio }}
         cgroup=$(awk -F':' '{print $3}' /proc/self/cgroup)
         cgroup_mem_limit=$(< "/sys/fs/cgroup/${cgroup}/memory.max")
         if [[ "${cgroup_mem_limit}" != "max" ]] ; then
           echo "${cgroup_mem_limit}" | awk -v "ratio=${ratio}" '{printf "GOMEMLIMIT=%.0fKiB\n", $1 / 1024 * ratio}' >> "$GITHUB_ENV"
           exit 0
         fi
-        # Fallback to the system memory limit.
         awk -v "ratio=${ratio}" '$1 == "MemTotal:" {printf "GOMEMLIMIT=%.0fKiB\n", $2 * ratio}' /proc/meminfo >> "$GITHUB_ENV"
+      if: inputs.enable_go == 'true'
+    - run: echo "GOMEMLIMIT=${GOMEMLIMIT}"
+      shell: bash
+      if: inputs.enable_go == 'true'
     - run: make promu
       shell: bash
       if: inputs.enable_go == 'true'
