@@ -20,34 +20,48 @@ inputs:
     description: Path to Dockerbuild context
     type: string
     default: ""
+  platforms:
+    description: Docker platforms to build
+    type: string
+    default: "linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x"
   container_image_name:
     description: Name of the container image
     type: string
-    default: ""
+    default: ${{ github.event.repository.name }}
+  github_token:
+    type: string
+    description: Github Token
   docker_image_tag:
     description: A custom image tag to be added
     type: string
 runs:
   using: composite
   steps:
-    - if: inputs.dockerfile_path != ''
-      run: echo "export DOCKERFILE_PATH=${{ inputs.dockerfile_path }}" >> /tmp/tmp-profile
-      shell: bash
-    - if: inputs.container_image_name != ''
-      run: echo "export DOCKER_IMAGE_NAME=${{ inputs.container_image_name }}" >> /tmp/tmp-profile
-      shell: bash
-    - if: inputs.dockerbuild_context != ''
-      run: echo "export DOCKERBUILD_CONTEXT=${{ inputs.dockerbuild_context }}" >> /tmp/tmp-profile
-      shell: bash
-    - if: inputs.docker_image_tag != ''
-      run: echo "export DOCKER_IMAGE_TAG=${{ inputs.docker_image_tag }}" >> /tmp/tmp-profile
-      shell: bash
-    - run: |
-        touch /tmp/tmp-profile
-        . /tmp/tmp-profile
-        make docker DOCKER_REPO=${{ inputs.registry }}/${{ inputs.organization }}
-        docker images
-        echo ${{ inputs.password }} | docker login -u ${{ inputs.login }} --password-stdin ${{ inputs.registry }}
-        make docker-publish DOCKER_REPO=${{ inputs.registry }}/${{ inputs.organization }}
-        make docker-manifest DOCKER_REPO=${{ inputs.registry }}/${{ inputs.organization }}
-      shell: bash
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@318604b99e75e41977312d83839a89be02ca4893 # v5.9.0
+      with:
+        github-token: ${{ inputs.github_token }}
+        images: |
+          ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.container_image_name }}
+        flavor: |
+          latest=false
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+    - name: Login to DockerHub
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.login }}
+        password: ${{ inputs.password }}
+    - name: Build and push
+      uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+      with:
+        context: ${{ inputs.dockerbuild_context || '.' }}
+        file: ${{ inputs.dockerfile_path }}
+        platforms: ${{ inputs.platforms }}
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
