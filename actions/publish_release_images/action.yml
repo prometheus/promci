@@ -20,34 +20,55 @@ inputs:
     description: Path to Dockerbuild context
     type: string
     default: ""
+  platforms:
+    description: Docker platforms to build
+    type: string
+    default: "linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x"
   container_image_name:
     description: Name of the container image
     type: string
-    default: ""
+    default: ${{ github.event.repository.name }}
+  github_token:
+    type: string
+    description: Github Token
 runs:
   using: composite
   steps:
-    - if: inputs.dockerfile_path != ''
-      run: echo "export DOCKERFILE_PATH=${{ inputs.dockerfile_path }}" >> /tmp/tmp-profile
-      shell: bash
-    - if: inputs.container_image_name != ''
-      run: echo "export DOCKER_IMAGE_NAME=${{ inputs.container_image_name }}" >> /tmp/tmp-profile
-      shell: bash
-    - if: inputs.dockerbuild_context != ''
-      run: echo "export DOCKERBUILD_CONTEXT=${{ inputs.dockerbuild_context }}" >> /tmp/tmp-profile
-      shell: bash
-    - run: |
-        current_tag=${GITHUB_REF#refs/*/}
-        touch /tmp/tmp-profile
-        . /tmp/tmp-profile
-        make docker DOCKER_IMAGE_TAG="$current_tag" DOCKER_REPO=${{ inputs.registry }}/${{ inputs.organization }}
-        docker images
-        echo ${{ inputs.password }} | docker login -u ${{ inputs.login }} --password-stdin ${{ inputs.registry }}
-        make docker-publish DOCKER_IMAGE_TAG="$current_tag" DOCKER_REPO=${{ inputs.registry }}/${{ inputs.organization }}
-        make docker-manifest DOCKER_IMAGE_TAG="$current_tag" DOCKER_REPO=${{ inputs.registry }}/${{ inputs.organization }}
-        if [[ "$current_tag" =~ ^v[0-9]+(\.[0-9]+){2}$ ]]; then
-          make docker-tag-latest DOCKER_IMAGE_TAG="$current_tag" DOCKER_REPO=${{ inputs.registry }}/${{ inputs.organization }}
-          make docker-publish DOCKER_IMAGE_TAG="latest" DOCKER_REPO=${{ inputs.registry }}/${{ inputs.organization }}
-          make docker-manifest DOCKER_IMAGE_TAG="latest" DOCKER_REPO=${{ inputs.registry }}/${{ inputs.organization }}
+    - name: Determine latest
+      id: update_latest
+      run: |
+        if [ ${{ startsWith(github.ref, 'refs/tags/v3.') }} ]
+        then
+            echo "::set-output name=latest::auto"
+        else
+            echo "::set-output name=latest::false"
         fi
-      shell: bash
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@318604b99e75e41977312d83839a89be02ca4893 # v5.9.0
+      with:
+        github-token: ${{ inputs.github_token }}
+        images: |
+          ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.container_image_name }}
+        flavor: |
+          latest=${{ steps.update_latest.outputs.latest }}
+        tags: |
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+    - name: Login to DockerHub
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.login }}
+        password: ${{ inputs.password }}
+    - name: Build and push
+      uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+      with:
+        context: ${{ inputs.dockerbuild_context || '.' }}
+        file: ${{ inputs.dockerfile_path }}
+        platforms: ${{ inputs.platforms }}
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
