@@ -50,6 +50,7 @@ runs:
         organization: ${{ inputs.docker_hub_organization }}
         login: ${{ inputs.docker_hub_login }}
         password: ${{ inputs.docker_hub_password }}
+        github_token: ${{ inputs.github_token }}
     - uses: ./.github/promci/actions/publish_release_images
       if: inputs.quay_io_organization != '' && inputs.quay_io_login != ''
       with:
@@ -57,6 +58,7 @@ runs:
         organization: ${{ inputs.quay_io_organization }}
         login: ${{ inputs.quay_io_login }}
         password: ${{ inputs.quay_io_password }}
+        github_token: ${{ inputs.github_token }}
     - uses: ./.github/promci/actions/publish_release_images
       if: inputs.ghcr_io_organization != '' && inputs.ghcr_io_login != ''
       with:
@@ -64,3 +66,4 @@ runs:
         organization: ${{ inputs.ghcr_io_organization }}
         login: ${{ inputs.ghcr_io_login }}
         password: ${{ inputs.ghcr_io_password }}
+        github_token: ${{ inputs.github_token }}
