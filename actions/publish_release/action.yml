@@ -33,6 +33,7 @@ runs:
     - uses: ./.github/promci/actions/setup_environment
       with:
         enable_docker_multibuild: true
+        clean-runner-disk: true
     - uses: ./.github/promci/actions/restore_artifacts
     - run: ~/go/bin/promu -c ${{ inputs.promu_config}} crossbuild tarballs
       shell: bash
