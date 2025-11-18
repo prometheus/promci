@@ -11,6 +11,7 @@ runs:
     - run: |
         tar cvf artifact.tar ${{ inputs.directory }}
         mv artifact.tar artifact-$(sha1sum artifact.tar|awk '{ print $1 }').tar
+        du artifact-*.tar
         echo NAME=$(echo artifact-*.tar) >> $GITHUB_OUTPUT
       shell: bash
       id: tar

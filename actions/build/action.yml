@@ -22,6 +22,8 @@ runs:
     - uses: ./.github/promci/actions/setup_environment
     - run: ~/go/bin/promu -c ${{ inputs.promu_config }} crossbuild -v --parallelism ${{ inputs.parallelism }} --parallelism-thread ${{ inputs.thread }} ${{ inputs.promu_opts }}
       shell: bash
+    - run: du -s .build/*
+      shell: bash
     - uses: ./.github/promci/actions/save_artifacts
       with:
         directory: .build
