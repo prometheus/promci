@@ -15,6 +15,6 @@ runs:
         for tar in .artifacts/*.tar
         do
           tar xvf $tar
+          rm $tar
         done
-        rm -v .artifacts/*.tar
       shell: bash
