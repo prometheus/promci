@@ -7,4 +7,4 @@ runs:
       with:
         repository: 'prometheus/promci'
         path: '.github/promci'
-        ref: v0.4.6
+        ref: v0.5.2
