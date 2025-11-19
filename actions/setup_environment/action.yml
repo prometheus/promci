@@ -58,9 +58,6 @@ runs:
         # Remove PowerShell
         sudo rm -rf /usr/local/share/powershell
 
-        # Remove CodeQL and other toolcaches
-        sudo rm -rf /opt/hostedtoolcache
-
         df -h
     - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       if: inputs.enable_go == 'true'
