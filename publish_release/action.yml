@@ -1,0 +1,59 @@
+name: Publish release
+description: Publish tagged release artifacts
+inputs:
+  docker_hub_organization:
+    description: DockerHub organization
+    default: prom
+  docker_hub_login:
+    description: DockerHub username
+  docker_hub_password:
+    description: DockerHub password
+  quay_io_organization:
+    description: Quay.io organization
+    default: prometheus
+  quay_io_login:
+    description: Quay.io username
+  quay_io_password:
+    description: Quay.io password
+  github_token:
+    description: Github Token
+  promu_config:
+    description: Config file for promu
+    default: .promu.yml
+runs:
+  using: composite
+  steps:
+    - uses: prometheus/promci-setup@5af30ba8c199a91d6c04ebdc3c48e630e355f62d # v0.1.0
+      with:
+        enable_docker_multibuild: true
+        clean-runner-disk: true
+    - uses: prometheus/promci-artifacts/restore@f9a587dbc0b2c78a0c54f8ad1cde71ea29a4b76f # v0.1.0
+    - run: ~/go/bin/promu -c ${{ inputs.promu_config}} crossbuild tarballs
+      shell: bash
+    - run: ~/go/bin/promu -c ${{ inputs.promu_config}} checksum .tarballs
+      shell: bash
+    - run: ~/go/bin/promu -c ${{ inputs.promu_config}} release .tarballs
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+    - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
+      if: ${{ inputs.docker_hub_organization != '' && inputs.docker_hub_login != '' }}
+      with:
+        registry: docker.io
+        organization: ${{ inputs.docker_hub_organization }}
+        login: ${{ inputs.docker_hub_login }}
+        password: ${{ inputs.docker_hub_password }}
+    - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
+      if: ${{ inputs.quay_io_organization != '' && inputs.quay_io_login != '' }}
+      with:
+        registry: quay.io
+        organization: ${{ inputs.quay_io_organization }}
+        login: ${{ inputs.quay_io_login }}
+        password: ${{ inputs.quay_io_password }}
+    - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
+      if: ${{ inputs.ghcr_io_organization != '' && inputs.ghcr_io_login != '' }}
+      with:
+        registry: ghcr.io
+        organization: ${{ inputs.ghcr_io_organization }}
+        login: ${{ inputs.ghcr_io_login }}
+        password: ${{ inputs.ghcr_io_password }}
