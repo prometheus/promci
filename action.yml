@@ -1,8 +1,10 @@
 name: PromCI
-description: An action used by the Prometheus project to share github actions.
+description: An action used by the Prometheus project to share github actions. (Deprecated)
 runs:
   using: composite
   steps:
+    - name: "WARNING: Deprecated action"
+      run: echo "This action has been deprecated in favor of prometheus/promci/<action>@<sha> actions"
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         repository: 'prometheus/promci'

@@ -1,21 +1,19 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: "weekly"
-
-  - package-ecosystem: github-actions
-    directory: actions/restore_artifacts
-    schedule:
-      interval: "weekly"
-
-  - package-ecosystem: github-actions
-    directory: actions/save_artifacts
-    schedule:
-      interval: "weekly"
-
-  - package-ecosystem: github-actions
-    directory: actions/setup_environment
-    schedule:
+    directories:
+      - /.github/workflows
+      - /
+      - /build
+      - /publish_main
+      - /publish_release
+      - /actions/build
+      - /actions/check_proto
+      - /actions/publish_images
+      - /actions/publish_main
+      - /actions/publish_release
+      - /actions/publish_release_images
+      - /actions/restore_artifacts
+      - /actions/save_artifacts
+      - /actions/setup_environment
       interval: "weekly"
