@@ -16,4 +16,5 @@ updates:
       - /actions/restore_artifacts
       - /actions/save_artifacts
       - /actions/setup_environment
-    interval: "weekly"
+    schedule:
+      interval: "weekly"
