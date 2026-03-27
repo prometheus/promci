@@ -28,11 +28,14 @@ runs:
         enable_docker_multibuild: true
         clean-runner-disk: true
     - uses: prometheus/promci-artifacts/restore@f9a587dbc0b2c78a0c54f8ad1cde71ea29a4b76f # v0.1.0
-    - run: ~/go/bin/promu -c ${{ inputs.promu_config}} crossbuild tarballs
+    - name: Crossbuild tarballs
+      run: ~/go/bin/promu -c ${{ inputs.promu_config}} crossbuild tarballs
       shell: bash
-    - run: ~/go/bin/promu -c ${{ inputs.promu_config}} checksum .tarballs
+    - name: Crossbuild checksum
+      run: ~/go/bin/promu -c ${{ inputs.promu_config}} checksum .tarballs
       shell: bash
-    - run: ~/go/bin/promu -c ${{ inputs.promu_config}} release .tarballs
+    - name: Crossbuild release
+      run: ~/go/bin/promu -c ${{ inputs.promu_config}} release .tarballs
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}

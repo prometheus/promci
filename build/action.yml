@@ -18,7 +18,8 @@ runs:
   using: composite
   steps:
     - uses: prometheus/promci-setup@5af30ba8c199a91d6c04ebdc3c48e630e355f62d # v0.1.0
-    - run: ~/go/bin/promu -c ${{ inputs.promu_config }} crossbuild -v --parallelism ${{ inputs.parallelism }} --parallelism-thread ${{ inputs.thread }} ${{ inputs.promu_opts }}
+    - name: Crossbuild
+      run: ~/go/bin/promu -c ${{ inputs.promu_config }} crossbuild -v --parallelism ${{ inputs.parallelism }} --parallelism-thread ${{ inputs.thread }} ${{ inputs.promu_opts }}
       shell: bash
     - uses: prometheus/promci-artifacts/save@f9a587dbc0b2c78a0c54f8ad1cde71ea29a4b76f # v0.1.0
       with:
