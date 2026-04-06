@@ -1,6 +1,7 @@
 name: Publish release
 description: Publish tagged release artifacts
 inputs:
+  # docker.io
   docker_hub_organization:
     description: DockerHub organization
     default: prom
@@ -8,6 +9,15 @@ inputs:
     description: DockerHub username
   docker_hub_password:
     description: DockerHub password
+  # ghcr.io
+  ghcr_io_organization:
+    description: ghcr.io organization
+    default: prometheus
+  ghcr_io_login:
+    description: ghcr.io username
+  ghcr_io_password:
+    description: ghcr.io password
+  # quay.io
   quay_io_organization:
     description: Quay.io organization
     default: prometheus
@@ -15,6 +25,7 @@ inputs:
     description: Quay.io username
   quay_io_password:
     description: Quay.io password
+  # Token for github release publishing.
   github_token:
     description: Github Token
   promu_config:
@@ -47,16 +58,16 @@ runs:
         login: ${{ inputs.docker_hub_login }}
         password: ${{ inputs.docker_hub_password }}
     - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
-      if: ${{ inputs.quay_io_organization != '' && inputs.quay_io_login != '' }}
-      with:
-        registry: quay.io
-        organization: ${{ inputs.quay_io_organization }}
-        login: ${{ inputs.quay_io_login }}
-        password: ${{ inputs.quay_io_password }}
-    - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
       if: ${{ inputs.ghcr_io_organization != '' && inputs.ghcr_io_login != '' }}
       with:
         registry: ghcr.io
         organization: ${{ inputs.ghcr_io_organization }}
         login: ${{ inputs.ghcr_io_login }}
         password: ${{ inputs.ghcr_io_password }}
+    - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
+      if: ${{ inputs.quay_io_organization != '' && inputs.quay_io_login != '' }}
+      with:
+        registry: quay.io
+        organization: ${{ inputs.quay_io_organization }}
+        login: ${{ inputs.quay_io_login }}
+        password: ${{ inputs.quay_io_password }}
