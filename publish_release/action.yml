@@ -7,6 +7,7 @@ inputs:
     default: prom
   docker_hub_login:
     description: DockerHub username
+    default: prombot
   docker_hub_password:
     description: DockerHub password
   # ghcr.io
@@ -15,6 +16,7 @@ inputs:
     default: prometheus
   ghcr_io_login:
     description: ghcr.io username
+    default: prometheus
   ghcr_io_password:
     description: ghcr.io password
   # quay.io
@@ -23,6 +25,7 @@ inputs:
     default: prometheus
   quay_io_login:
     description: Quay.io username
+    default: prombot
   quay_io_password:
     description: Quay.io password
   # Token for github release publishing.
@@ -51,21 +54,21 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
     - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
-      if: ${{ inputs.docker_hub_organization != '' && inputs.docker_hub_login != '' }}
+      if: ${{ inputs.docker_hub_organization != '' && inputs.docker_hub_login != '' && inputs.docker_hub_password != '' }}
       with:
         registry: docker.io
         organization: ${{ inputs.docker_hub_organization }}
         login: ${{ inputs.docker_hub_login }}
         password: ${{ inputs.docker_hub_password }}
     - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
-      if: ${{ inputs.ghcr_io_organization != '' && inputs.ghcr_io_login != '' }}
+      if: ${{ inputs.ghcr_io_organization != '' && inputs.ghcr_io_login != '' && inputs.ghcr_io_password != ''}}
       with:
         registry: ghcr.io
         organization: ${{ inputs.ghcr_io_organization }}
         login: ${{ inputs.ghcr_io_login }}
         password: ${{ inputs.ghcr_io_password }}
     - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
-      if: ${{ inputs.quay_io_organization != '' && inputs.quay_io_login != '' }}
+      if: ${{ inputs.quay_io_organization != '' && inputs.quay_io_login != '' && inputs.quay_io_password != ''}}
       with:
         registry: quay.io
         organization: ${{ inputs.quay_io_organization }}
