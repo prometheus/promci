@@ -4,6 +4,8 @@ Set of GitHub actions shared by GitHub projects in the Prometheus Ecosystem.
 
 ### Usage
 
+For a full working release example, see [examples/ci.yml](examples/ci.yml).
+
 ```yaml
 jobs:
   build:
@@ -14,7 +16,6 @@ jobs:
   publish_main:
     needs: [build]
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         uses: prometheus/promci/publish_main@<sha> # v0.6.0
         with:
           docker_hub_password: ${{ secrets.docker_hub_password }}
@@ -25,7 +26,6 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         uses: prometheus/promci/publish_release@<sha> # v0.6.0
         with:
           docker_hub_password: ${{ secrets.docker_hub_password }}
