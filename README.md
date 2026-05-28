@@ -22,11 +22,13 @@ jobs:
 
   publish_release:
     needs: [build]
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         uses: prometheus/promci/publish_release@<sha> # v0.6.0
         with:
           docker_hub_password: ${{ secrets.docker_hub_password }}
           quay_io_password: ${{ secrets.quay_io_password }}
-          github_token: ${{ secrets.PROMBOT_GITHUB_TOKEN }}
+          github_token: ${{ github.token }}
 ```
