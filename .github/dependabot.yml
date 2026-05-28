@@ -4,6 +4,7 @@ updates:
     directories:
       - /.github/workflows
       - /build
+      - /examples
       - /publish_main
       - /publish_release
     schedule:
