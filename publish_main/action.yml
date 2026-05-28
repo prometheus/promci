@@ -2,6 +2,9 @@
 name: Publish image
 description: Publish artifacts on the default branch.
 inputs:
+  checkout:
+    description: Run checkout action
+    default: "true"
   # docker.io
   docker_hub_organization:
     description: DockerHub organization
@@ -32,6 +35,10 @@ inputs:
 runs:
   using: composite
   steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        persist-credentials: false
+      if: $(( inputs.checkout == "true" }}
     - uses: prometheus/promci-setup@5af30ba8c199a91d6c04ebdc3c48e630e355f62d # v0.1.0
       with:
         enable_docker_multibuild: true
