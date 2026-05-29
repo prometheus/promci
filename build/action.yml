@@ -21,9 +21,9 @@ runs:
   using: composite
   steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      if: inputs.checkout == 'true'
       with:
         persist-credentials: false
-      if: ${{ inputs.checkout == "true" }}
     - uses: prometheus/promci-setup@5af30ba8c199a91d6c04ebdc3c48e630e355f62d # v0.1.0
     - name: Crossbuild
       run: ~/go/bin/promu -c ${{ inputs.promu_config }} crossbuild -v --parallelism ${{ inputs.parallelism }} --parallelism-thread ${{ inputs.thread }} ${{ inputs.promu_opts }}
