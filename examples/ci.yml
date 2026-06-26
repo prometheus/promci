@@ -48,7 +48,7 @@ jobs:
       ||
       (github.event_name == 'push' && github.event.ref == 'refs/heads/master')
     steps:
-      - uses: prometheus/promci/publish_main@c7d527128ffb38ad3d7934795da35b252c7d51dd # v0.8.3
+      - uses: prometheus/promci/publish_main@9c0e5048a10565e63cbf7c94527ba81ce9be0bea # v0.8.4
         with:
           docker_hub_password: ${{ secrets.docker_hub_password }}
           ghcr_io_password: ${{ github.token }}
