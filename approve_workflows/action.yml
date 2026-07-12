@@ -1,0 +1,22 @@
+---
+name: Approve pending workflows
+description: Approve CI runs from trusted pull request commenters.
+inputs:
+  github_token:
+    description: GitHub token with permission to approve workflow runs
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Approve pending workflows
+      if: >-
+        github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request &&
+        github.event.comment.body == '/workflow-approve'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+        PR_NUMBER: ${{ github.event.issue.number }}
+        SENDER: ${{ github.event.comment.user.login }}
+        COMMENT: ${{ github.event.comment.body }}
+      run: bash "${{ github.action_path }}/approve-workflows.sh"

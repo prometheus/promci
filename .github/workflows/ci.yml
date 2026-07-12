@@ -20,6 +20,7 @@ jobs:
         with:
           patterns: |-
             .github/workflows/*.yml
+            approve_workflows/action.yml
             build/action.yml
             publish_main/action.yml
             publish_release/action.yml
