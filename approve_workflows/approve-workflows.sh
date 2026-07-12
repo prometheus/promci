@@ -2,14 +2,9 @@
 
 set -euo pipefail
 
-if [[ -z "${GITHUB_REPOSITORY:-}" || -z "${PR_NUMBER:-}" || -z "${SENDER:-}" || -z "${COMMENT:-}" ]]; then
-    echo "GITHUB_REPOSITORY, PR_NUMBER, SENDER, and COMMENT must be set"
+if [[ -z "${GITHUB_REPOSITORY:-}" || -z "${PR_NUMBER:-}" || -z "${SENDER:-}" ]]; then
+    echo "GITHUB_REPOSITORY, PR_NUMBER, and SENDER must be set"
     exit 1
-fi
-
-if [[ "${COMMENT}" != "/workflow-approve" ]]; then
-    echo "Ignoring comment that is not the workflow approval command"
-    exit 0
 fi
 
 if ! ROLE=$(

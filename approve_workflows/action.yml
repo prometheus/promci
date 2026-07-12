@@ -18,5 +18,4 @@ runs:
         GH_TOKEN: ${{ inputs.github_token }}
         PR_NUMBER: ${{ github.event.issue.number }}
         SENDER: ${{ github.event.comment.user.login }}
-        COMMENT: ${{ github.event.comment.body }}
       run: bash "${{ github.action_path }}/approve-workflows.sh"
