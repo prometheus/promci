@@ -67,11 +67,11 @@ runs:
       with:
         persist-credentials: false
         fetch-tags: true
-    - uses: prometheus/promci-setup@3e5cd31b34b8ae19efa8f071c5e3cdb44884a7f8 # v0.2.1
+    - uses: prometheus/promci-setup@55bd31fe92710532260eb57c554f2697363285c5 # v0.2.2
       with:
         enable_docker_multibuild: true
         clean-runner-disk: true
-    - uses: prometheus/promci-artifacts/restore@f9a587dbc0b2c78a0c54f8ad1cde71ea29a4b76f # v0.1.0
+    - uses: prometheus/promci-artifacts/restore@9ca3252d07f230d5f923452b4df5697eba4a5bee # v0.1.1
     - name: Crossbuild tarballs
       if: inputs.skip_github_release != 'true'
       run: ~/go/bin/promu -c ${{ inputs.promu_config}} crossbuild tarballs
