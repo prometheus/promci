@@ -32,6 +32,28 @@ inputs:
     default: prombot
   quay_io_password:
     description: Quay.io password
+  # Secondary / custom image publishing
+  working_directory:
+    description: Directory passed to make -C (for secondary images with their own Makefile)
+    default: "."
+  skip_manifest:
+    description: Skip make docker-manifest (for single-arch Makefiles without that target)
+    default: "false"
+  extra_make_args:
+    description: Extra arguments appended to make invocations (e.g. REPO_TAG=main)
+    default: ""
+  dockerfile_path:
+    description: Path to Dockerfile (forwarded to promci-images)
+    default: ""
+  dockerbuild_context:
+    description: Path to Docker build context (forwarded to promci-images)
+    default: ""
+  container_image_name:
+    description: Name of the container image (forwarded to promci-images)
+    default: ""
+  docker_image_tag:
+    description: Custom image tag (forwarded to promci-images)
+    default: ""
 runs:
   using: composite
   steps:
@@ -43,24 +65,45 @@ runs:
       with:
         enable_docker_multibuild: true
     - uses: prometheus/promci-artifacts/restore@f9a587dbc0b2c78a0c54f8ad1cde71ea29a4b76f # v0.1.0
-    - uses: prometheus/promci-images/publish@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
+    - uses: prometheus/promci-images/publish@ae9365cc76277345b9616767215b106ea72ce738 # v0.2.0
       if: ${{ inputs.docker_hub_organization != '' && inputs.docker_hub_login != '' && inputs.docker_hub_password != '' }}
       with:
         registry: docker.io
         organization: ${{ inputs.docker_hub_organization }}
         login: ${{ inputs.docker_hub_login }}
         password: ${{ inputs.docker_hub_password }}
-    - uses: prometheus/promci-images/publish@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
+        working_directory: ${{ inputs.working_directory }}
+        skip_manifest: ${{ inputs.skip_manifest }}
+        extra_make_args: ${{ inputs.extra_make_args }}
+        dockerfile_path: ${{ inputs.dockerfile_path }}
+        dockerbuild_context: ${{ inputs.dockerbuild_context }}
+        container_image_name: ${{ inputs.container_image_name }}
+        docker_image_tag: ${{ inputs.docker_image_tag }}
+    - uses: prometheus/promci-images/publish@ae9365cc76277345b9616767215b106ea72ce738 # v0.2.0
       if: ${{ inputs.ghcr_io_organization != '' && inputs.ghcr_io_login != '' && inputs.ghcr_io_password != ''}}
       with:
         registry: ghcr.io
         organization: ${{ inputs.ghcr_io_organization }}
         login: ${{ inputs.ghcr_io_login }}
         password: ${{ inputs.ghcr_io_password }}
-    - uses: prometheus/promci-images/publish@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
+        working_directory: ${{ inputs.working_directory }}
+        skip_manifest: ${{ inputs.skip_manifest }}
+        extra_make_args: ${{ inputs.extra_make_args }}
+        dockerfile_path: ${{ inputs.dockerfile_path }}
+        dockerbuild_context: ${{ inputs.dockerbuild_context }}
+        container_image_name: ${{ inputs.container_image_name }}
+        docker_image_tag: ${{ inputs.docker_image_tag }}
+    - uses: prometheus/promci-images/publish@ae9365cc76277345b9616767215b106ea72ce738 # v0.2.0
       if: ${{ inputs.quay_io_organization != '' && inputs.quay_io_login != '' && inputs.quay_io_password != ''}}
       with:
         registry: quay.io
         organization: ${{ inputs.quay_io_organization }}
         login: ${{ inputs.quay_io_login }}
         password: ${{ inputs.quay_io_password }}
+        working_directory: ${{ inputs.working_directory }}
+        skip_manifest: ${{ inputs.skip_manifest }}
+        extra_make_args: ${{ inputs.extra_make_args }}
+        dockerfile_path: ${{ inputs.dockerfile_path }}
+        dockerbuild_context: ${{ inputs.dockerbuild_context }}
+        container_image_name: ${{ inputs.container_image_name }}
+        docker_image_tag: ${{ inputs.docker_image_tag }}

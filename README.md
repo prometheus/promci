@@ -56,3 +56,34 @@ jobs:
 ```
 
 Pin the action to a full commit SHA.
+
+### Secondary images
+
+To publish an additional image from a subdirectory Makefile (for example
+`generator/` in snmp_exporter), pass `working_directory` and disable manifests
+when that Makefile has no `docker-manifest` target. For docker-only release
+publishes, set `skip_github_release: true` so promu does not attach tarballs to
+the GitHub release:
+
+```yaml
+publish_generator_main:
+  steps:
+    - uses: prometheus/promci/publish_main@<sha>
+      with:
+        docker_hub_password: ${{ secrets.docker_hub_password }}
+        ghcr_io_password: ${{ github.token }}
+        quay_io_password: ${{ secrets.quay_io_password }}
+        working_directory: generator
+        skip_manifest: true
+
+publish_generator_release:
+  steps:
+    - uses: prometheus/promci/publish_release@<sha>
+      with:
+        docker_hub_password: ${{ secrets.docker_hub_password }}
+        ghcr_io_password: ${{ github.token }}
+        quay_io_password: ${{ secrets.quay_io_password }}
+        working_directory: generator
+        skip_manifest: true
+        skip_github_release: true
+```
