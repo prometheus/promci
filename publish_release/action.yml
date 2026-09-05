@@ -37,6 +37,28 @@ inputs:
   promu_config:
     description: Config file for promu
     default: .promu.yml
+  skip_github_release:
+    description: Skip promu tarball/checksum/GitHub release steps (docker-only publish)
+    default: "false"
+  # Secondary / custom image publishing
+  working_directory:
+    description: Directory passed to make -C (for secondary images with their own Makefile)
+    default: "."
+  skip_manifest:
+    description: Skip make docker-manifest (for single-arch Makefiles without that target)
+    default: "false"
+  extra_make_args:
+    description: Extra arguments appended to make invocations (e.g. REPO_TAG=v1.2.3)
+    default: ""
+  dockerfile_path:
+    description: Path to Dockerfile (forwarded to promci-images)
+    default: ""
+  dockerbuild_context:
+    description: Path to Docker build context (forwarded to promci-images)
+    default: ""
+  container_image_name:
+    description: Name of the container image (forwarded to promci-images)
+    default: ""
 runs:
   using: composite
   steps:
@@ -51,34 +73,55 @@ runs:
         clean-runner-disk: true
     - uses: prometheus/promci-artifacts/restore@f9a587dbc0b2c78a0c54f8ad1cde71ea29a4b76f # v0.1.0
     - name: Crossbuild tarballs
+      if: inputs.skip_github_release != 'true'
       run: ~/go/bin/promu -c ${{ inputs.promu_config}} crossbuild tarballs
       shell: bash
     - name: Crossbuild checksum
+      if: inputs.skip_github_release != 'true'
       run: ~/go/bin/promu -c ${{ inputs.promu_config}} checksum .tarballs
       shell: bash
     - name: Crossbuild release
+      if: inputs.skip_github_release != 'true'
       run: ~/go/bin/promu -c ${{ inputs.promu_config}} release .tarballs
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
-    - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
+    - uses: prometheus/promci-images/publish_release@ae9365cc76277345b9616767215b106ea72ce738 # v0.2.0
       if: ${{ inputs.docker_hub_organization != '' && inputs.docker_hub_login != '' && inputs.docker_hub_password != '' }}
       with:
         registry: docker.io
         organization: ${{ inputs.docker_hub_organization }}
         login: ${{ inputs.docker_hub_login }}
         password: ${{ inputs.docker_hub_password }}
-    - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
+        working_directory: ${{ inputs.working_directory }}
+        skip_manifest: ${{ inputs.skip_manifest }}
+        extra_make_args: ${{ inputs.extra_make_args }}
+        dockerfile_path: ${{ inputs.dockerfile_path }}
+        dockerbuild_context: ${{ inputs.dockerbuild_context }}
+        container_image_name: ${{ inputs.container_image_name }}
+    - uses: prometheus/promci-images/publish_release@ae9365cc76277345b9616767215b106ea72ce738 # v0.2.0
       if: ${{ inputs.ghcr_io_organization != '' && inputs.ghcr_io_login != '' && inputs.ghcr_io_password != ''}}
       with:
         registry: ghcr.io
         organization: ${{ inputs.ghcr_io_organization }}
         login: ${{ inputs.ghcr_io_login }}
         password: ${{ inputs.ghcr_io_password }}
-    - uses: prometheus/promci-images/publish_release@43087125ee33af44414b41d98d7180a45f1f6447 # v0.1.0
+        working_directory: ${{ inputs.working_directory }}
+        skip_manifest: ${{ inputs.skip_manifest }}
+        extra_make_args: ${{ inputs.extra_make_args }}
+        dockerfile_path: ${{ inputs.dockerfile_path }}
+        dockerbuild_context: ${{ inputs.dockerbuild_context }}
+        container_image_name: ${{ inputs.container_image_name }}
+    - uses: prometheus/promci-images/publish_release@ae9365cc76277345b9616767215b106ea72ce738 # v0.2.0
       if: ${{ inputs.quay_io_organization != '' && inputs.quay_io_login != '' && inputs.quay_io_password != ''}}
       with:
         registry: quay.io
         organization: ${{ inputs.quay_io_organization }}
         login: ${{ inputs.quay_io_login }}
         password: ${{ inputs.quay_io_password }}
+        working_directory: ${{ inputs.working_directory }}
+        skip_manifest: ${{ inputs.skip_manifest }}
+        extra_make_args: ${{ inputs.extra_make_args }}
+        dockerfile_path: ${{ inputs.dockerfile_path }}
+        dockerbuild_context: ${{ inputs.dockerbuild_context }}
+        container_image_name: ${{ inputs.container_image_name }}
